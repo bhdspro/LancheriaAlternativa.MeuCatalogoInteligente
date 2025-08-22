@@ -664,17 +664,42 @@ document.addEventListener('DOMContentLoaded', () => {
         submitButton.disabled = true;
         submitButton.textContent = 'Enviando...';
         
-        // Simulação de envio para o backend
-        console.log("Formulário de marketing enviado!");
+        const formData = new FormData();
+        formData.append('whatsapp', document.getElementById('whatsapp-input').value);
+        formData.append('link', document.getElementById('link-input').value);
         
-        submissionFormContainer.classList.add('hidden');
-        submissionSuccess.classList.remove('hidden');
+        const fileInput = document.getElementById('file-upload');
+        if (fileInput.files.length > 0) {
+            formData.append('file-upload', fileInput.files[0]);
+        }
+        
+        const renderUrl = 'https://meucatalogointeligente.onrender.com/submit';
 
-        setTimeout(() => {
-            hidePopup(submissionPopup);
+        try {
+            const response = await fetch(renderUrl, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error('Falha no envio. Tente novamente.');
+            }
+
+            submissionFormContainer.classList.add('hidden');
+            submissionSuccess.classList.remove('hidden');
+
+            setTimeout(() => {
+                hidePopup(submissionPopup);
+                submitButton.disabled = false;
+                submitButton.textContent = 'Enviar para Teste Grátis';
+            }, 5000);
+
+        } catch (error) {
+            console.error('Erro:', error);
+            alert(error.message);
             submitButton.disabled = false;
             submitButton.textContent = 'Enviar para Teste Grátis';
-        }, 5000);
+        }
     });
     
     // Popup de oferta inicial (após 10 segundos)
