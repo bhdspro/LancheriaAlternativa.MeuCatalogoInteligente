@@ -30,12 +30,16 @@
                         'fade-out': 'fadeOut 0.5s ease-in forwards',
                         'slide-in-up': 'slideInUp 0.5s ease-out forwards',
                         'slide-out-down': 'slideOutDown 0.5s ease-in forwards',
+                        'slide-in-right': 'slideInRight 0.3s ease-out forwards',
+                        'slide-out-right': 'slideOutRight 0.3s ease-in forwards',
                     },
                     keyframes: {
                         fadeIn: { '0%': { opacity: 0 }, '100%': { opacity: 1 } },
                         fadeOut: { '0%': { opacity: 1 }, '100%': { opacity: 0 } },
                         slideInUp: { '0%': { transform: 'translateY(100%)', opacity: 0 }, '100%': { transform: 'translateY(0)', opacity: 1 } },
                         slideOutDown: { '0%': { transform: 'translateY(0)', opacity: 1 }, '100%': { transform: 'translateY(100%)', opacity: 0 } },
+                        slideInRight: { '0%': { transform: 'translateX(100%)' }, '100%': { transform: 'translateX(0)' } },
+                        slideOutRight: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(100%)' } },
                     }
                 }
             }
@@ -76,13 +80,27 @@
         </header>
 
         <!-- Corpo do Catálogo -->
-        <main id="menu-container" class="space-y-10">
-            <!-- As categorias e itens do catálogo serão inseridos aqui pelo JavaScript -->
+        <main class="space-y-10">
+            <!-- Seção de IA Adicionada -->
+            <section class="bg-brand-surface p-4 sm:p-6 rounded-lg text-center">
+                <h2 class="text-xl sm:text-2xl font-bold text-brand-secondary">✨ Recomendação do Chef</h2>
+                <p class="text-brand-subtle mt-1 text-sm sm:text-base">Diga o que você quer comer e nossa IA encontra a melhor opção!</p>
+                <div class="mt-4 flex flex-col sm:flex-row gap-2 max-w-lg mx-auto">
+                    <input type="text" id="ai-prompt-input" placeholder="Ex: 'um lanche bem grande com bacon'" class="w-full bg-gray-800 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                    <button id="ai-recommendation-button" class="w-full sm:w-auto bg-brand-primary hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105 whitespace-nowrap">
+                        Sugerir
+                    </button>
+                </div>
+            </section>
+
+            <div id="menu-container" class="space-y-10">
+                <!-- As categorias e itens do catálogo serão inseridos aqui pelo JavaScript -->
+            </div>
         </main>
 
         <!-- Rodapé -->
         <footer class="text-center mt-12 border-t border-gray-700 pt-6">
-            <div id="footer-ad" class="bg-brand-surface p-4 rounded-lg mb-6">
+             <div id="footer-ad" class="bg-brand-surface p-4 rounded-lg mb-6">
                 <h3 class="font-bold text-brand-secondary">Quer um Catálogo Inteligente como este para o seu negócio?</h3>
                 <p class="text-sm text-brand-subtle mt-1">Aumente seus pedidos e impressione seus clientes. Clique no botão e saiba mais!</p>
                 <button id="cta-footer-button" class="mt-3 bg-brand-primary hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105">Quero um Catálogo Inteligente</button>
@@ -90,54 +108,67 @@
             <p class="text-brand-subtle text-xs sm:text-sm">&copy; 2025 Meu Catálogo Inteligente. Todos os direitos reservados.</p>
         </footer>
     </div>
+    
+    <!-- Botão Flutuante do Carrinho -->
+    <button id="cart-button" class="fixed bottom-6 right-6 bg-brand-primary hover:bg-orange-600 text-white p-4 rounded-full shadow-lg transition-transform transform hover:scale-110 z-30">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+        <span id="cart-count" class="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">0</span>
+    </button>
+    
+    <!-- Painel do Carrinho -->
+    <div id="cart-panel-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 animate-fade-in"></div>
+    <div id="cart-panel" class="hidden fixed top-0 right-0 h-full w-full max-w-md bg-brand-background shadow-2xl z-50 flex flex-col">
+        <div class="flex justify-between items-center p-4 border-b border-gray-700">
+            <h2 class="text-2xl font-bold text-white">Seu Pedido</h2>
+            <button id="close-cart-button" class="text-gray-400 hover:text-white">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </div>
+        <div id="cart-items-container" class="flex-grow p-4 overflow-y-auto">
+            <!-- Itens do carrinho serão inseridos aqui -->
+        </div>
+        <div class="p-4 border-t border-gray-700">
+            <div class="flex justify-between items-center text-lg font-bold">
+                <span>Total:</span>
+                <span id="cart-total">R$ 0,00</span>
+            </div>
+            <button id="checkout-button" class="mt-4 w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-4 rounded-lg text-lg">
+                Enviar Pedido via WhatsApp
+            </button>
+        </div>
+    </div>
 
-    <!-- Popup de Oferta Inicial -->
+
+    <!-- Modal de Recomendação da IA -->
+    <div id="ai-recommendation-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 animate-fade-in">
+        <div class="bg-brand-surface rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full text-center relative animate-slide-in-up">
+            <button id="close-ai-modal" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <h2 class="text-2xl font-bold text-brand-primary mb-4">✨ Recomendação do Chef</h2>
+            <div id="ai-recommendation-content">
+                <!-- Conteúdo da recomendação será inserido aqui -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Popup de Oferta de Marketing -->
     <div id="offer-popup" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 animate-fade-in">
         <div class="bg-brand-surface rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full text-center relative animate-slide-in-up">
             <button id="close-offer-popup" class="absolute top-4 right-4 text-gray-400 hover:text-white">
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
             <h2 class="text-2xl font-bold text-brand-primary mb-3">Transforme Seu Catálogo, Aumente Suas Vendas!</h2>
-            <p class="text-brand-subtle mb-5">Cansado de catálogos ultrapassados? Tenha um Catálogo Inteligente, interativo e que vende por você, 24h por dia.</p>
+            <p class="text-brand-subtle mb-5">Tenha um Catálogo Inteligente, interativo e que vende por você, 24h por dia.</p>
             <div class="bg-gray-800 p-4 rounded-lg mb-5 text-left">
                 <p class="font-semibold text-white">🔥 Oferta Exclusiva por Tempo Limitado:</p>
                 <ul class="list-disc list-inside text-brand-subtle mt-2 space-y-1 text-sm">
                     <li><span class="font-bold text-green-400">7 DIAS GRÁTIS</span> para testar sem compromisso.</li>
                     <li>Após o teste, o catálogo é seu para <span class="font-bold text-white">SEMPRE</span>.</li>
                     <li>Taxa única de criação: <span class="line-through">R$29,90</span> por apenas <span class="font-bold text-green-400">R$9,90</span>.</li>
-                    <li>Atualizações futuras? Apenas R$4,90 (e somente se você precisar!).</li>
                 </ul>
-                <p class="text-xs text-center mt-3 text-gray-400">Sem mensalidades. Sem pegadinhas.</p>
             </div>
             <button id="cta-popup-button" class="w-full bg-brand-primary hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition-transform transform hover:scale-105">QUERO MEU TESTE GRÁTIS!</button>
-        </div>
-    </div>
-
-    <!-- Popup de Envio de Catálogo -->
-    <div id="submission-popup" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 animate-fade-in">
-        <div class="bg-brand-surface rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full relative animate-slide-in-up">
-            <button id="close-submission-popup" class="absolute top-4 right-4 text-gray-400 hover:text-white">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-            <div id="submission-form-container">
-                <h2 class="text-2xl font-bold text-brand-primary mb-3 text-center">Estamos quase lá!</h2>
-                <p class="text-brand-subtle mb-6 text-center">Envie seu catálogo atual e seu WhatsApp. Entregaremos sua nova versão inteligente em até 24 horas!</p>
-                <form id="submission-form" class="space-y-4">
-                    <input type="text" id="whatsapp-input" placeholder="Seu WhatsApp com DDD" required class="w-full bg-gray-800 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
-                    <input type="text" id="link-input" placeholder="Ou cole o link do catálogo aqui" class="w-full bg-gray-800 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
-                    <label for="file-upload" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center cursor-pointer">
-                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                        <span>Anexar arquivo do catálogo</span>
-                    </label>
-                    <input id="file-upload" type="file" class="hidden">
-                    <p id="file-name" class="text-sm text-center text-brand-subtle"></p>
-                    <button type="submit" class="w-full bg-brand-primary hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition-transform transform hover:scale-105">Enviar e Começar Teste Grátis</button>
-                </form>
-            </div>
-            <div id="submission-success" class="hidden text-center">
-                 <h2 class="text-2xl font-bold text-green-400 mb-3">Enviado com Sucesso!</h2>
-                 <p class="text-brand-subtle">Recebemos suas informações. Em breve, nossa equipe entrará em contato pelo WhatsApp para entregar seu novo Catálogo Inteligente. Fique de olho!</p>
-            </div>
         </div>
     </div>
 
@@ -145,58 +176,56 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- DADOS DO CATÁLOGO ---
-    const restaurantWhatsapp = "5543988222204";
+    // --- DADOS DO CATÁLOGO (ATUALIZADO) ---
+    const restaurantWhatsapp = "5543988222204"; 
     const menuData = [
         {
             category: "Lanches",
             items: [
-                { name: "X-Hambúrguer", description: "Pão, hambúrguer, presunto, queijo, maionese, mostarda e ketchup.", price: 14.00 },
-                { name: "X-Salada", description: "Pão, hambúrguer, queijo, batata palha, milho, alface, tomate, maionese, mostarda e ketchup.", price: 15.00 },
-                { name: "X-Bacon", description: "Pão, hambúrguer, bacon, queijo, batata palha, milho, tomate, maionese, mostarda e ketchup.", price: 20.00 },
-                { name: "X-Frango", description: "Pão, frango, queijo, batata palha, milho, alface, tomate, maionese, mostarda e ketchup.", price: 18.00 },
-                { name: "X-Salada com Salsicha", description: "Pão, hambúrguer, 2 salsichas, queijo, batata palha, milho, alface, tomate, maionese, mostarda e ketchup.", price: 19.00 },
-                { name: "X-Calabresa", description: "Pão, hambúrguer, calabresa, queijo, batata palha, milho, alface, tomate, maionese, mostarda e ketchup.", price: 19.00 },
-                { name: "X-Coração", description: "Pão, coração, queijo, batata palha, milho, alface, tomate, maionese, mostarda e ketchup.", price: 20.00 },
-                { name: "X-Coração (versão 2)", description: "Pão, hambúrguer, coração, bacon, queijo, batata palha, milho, alface, tomate, maionese, mostarda e ketchup.", price: 23.00 },
-                { name: "X-Coração com Bacon", description: "Pão, coração, bacon, queijo, batata palha, milho, alface, tomate, maionese, mostarda e ketchup.", price: 21.00 },
-                { name: "X-Frango Catupiry", description: "Pão, frango, catupiry, queijo, batata palha, milho, alface, tomate, maionese, mostarda e ketchup.", price: 19.00 },
-                { name: "X-Frango com Calabresa", description: "Pão, frango, calabresa, queijo, batata palha, milho, alface, tomate, maionese, mostarda e ketchup.", price: 20.00 },
-                { name: "X-Egg", description: "Pão, hambúrguer, ovo, 2 salsichas, presunto, queijo, alface, tomate, maionese, mostarda e ketchup.", price: 20.00 },
-                { name: "X-Tudo", description: "Pão, hambúrguer, frango, calabresa, bacon, queijo, batata palha, milho, alface, tomate, maionese, mostarda e ketchup.", price: 23.00 },
-                { name: "Dog Simples", description: "Pão, salsicha, batata palha, milho, tomate, maionese, mostarda e ketchup.", price: 15.00 },
-                { name: "Dog Simples (versão 2)", description: "1 salsicha, batata palha, milho, tomate, maionese, mostarda e ketchup.", price: 13.00 },
-                { name: "Dog Frango", description: "2 salsichas, frango, batata palha, milho, tomate, maionese, mostarda e ketchup.", price: 18.00 },
-                { name: "Dog Bacon", description: "2 salsichas, bacon, batata palha, milho, tomate, maionese, mostarda e ketchup.", price: 19.00 },
-                { name: "Torrada", description: "Pão de hambúrguer, presunto, queijo, maionese, mostarda e ketchup.", price: 10.00 },
-                { name: "Torrada Americana", description: "Pão de hambúrguer, presunto, queijo, alface, tomate, maionese, mostarda e ketchup.", price: 13.00 },
+                { name: "X-Hambúrguer", description: "Pão, hambúrguer, presunto, queijo, maionese, mostarda e ketchup.", price: 17.00 },
+                { name: "X-Salada", description: "Pão, hambúrguer, queijo, batata palha, milho, alface, tomate, maionese, mostarda e ketchup.", price: 19.00 },
+                { name: "X-Bacon", description: "Pão, hambúrguer, bacon, queijo, batata palha, milho, alface, tomate, maionese, mostarda e ketchup.", price: 24.00 },
+                { name: "X-Frango", description: "Pão, frango, queijo, batata palha, milho, alface, tomate, maionese, mostarda e ketchup.", price: 21.00 },
+                { name: "X-Salada c/ Salsicha", description: "Pão, hambúrguer, 2 salsichas, queijo, batata palha, milho, alface, tomate, maionese, mostarda e ketchup.", price: 22.00 },
+                { name: "X-Calabresa", description: "Pão, calabresa, queijo, batata palha, milho, alface, tomate, maionese, mostarda e ketchup.", price: 22.00 },
+                { name: "X-Coração", description: "Pão, coração, queijo, batata palha, milho, alface, tomate, maionese, mostarda e ketchup.", price: 24.00 },
+                { name: "X-Coração (versão 2)", description: "Pão, hambúrguer, coração, bacon, queijo, batata palha, milho, alface, tomate, maionese, mostarda e ketchup.", price: 28.00 },
+                { name: "X-Coração c/ Bacon", description: "Pão, coração, bacon, queijo, batata palha, milho, alface, tomate, maionese, mostarda e ketchup.", price: 25.00 },
+                { name: "X-Frango Catupiry", description: "Pão, frango, catupiry, queijo, batata palha, milho, alface, tomate, maionese, mostarda e ketchup.", price: 22.00 },
+                { name: "X-Frango c/ Calabresa", description: "Pão, frango, calabresa, queijo, batata palha, milho, alface, tomate, maionese, mostarda e ketchup.", price: 24.00 },
+                { name: "X-Frango c/ Bacon", description: "Pão, frango, bacon, queijo, batata palha, milho, alface, tomate, maionese, mostarda e ketchup.", price: 25.00 },
+                { name: "X-Egg", description: "Pão, hambúrguer, ovo, 2 salsichas, presunto, queijo, batata palha, alface, tomate, maionese, mostarda e ketchup.", price: 24.00 },
+                { name: "X-Tudo", description: "Pão, hambúrguer, frango, calabresa, bacon, queijo, batata palha, milho, alface, tomate, maionese, mostarda e ketchup.", price: 28.00 },
+                { name: "Dog Simples", description: "2 Salsichas, queijo, batata palha, milho, tomate, maionese, mostarda e ketchup.", price: 17.00 },
+                { name: "Dog Simples (versão 2)", description: "2 Salsichas, batata palha, milho, tomate, maionese, mostarda e ketchup.", price: 15.00 },
+                { name: "Dog Frango", description: "2 Salsichas, frango, batata palha, milho, tomate, maionese, mostarda e ketchup.", price: 21.00 },
+                { name: "Dog Bacon", description: "2 Salsichas, bacon, batata palha, milho, tomate, maionese, mostarda e ketchup.", price: 22.00 },
+                { name: "Torrada", description: "Pão de hambúrguer, presunto, queijo, maionese, mostarda e ketchup.", price: 12.00 },
+                { name: "Torrada Americana", description: "Pão de hambúrguer, presunto, queijo, alface, tomate, maionese, mostarda e ketchup.", price: 16.00 },
             ]
         },
         {
             category: "Porções",
             items: [
-                { name: "Picado 1 (Pequena)", description: "Batata frita, calabresa, frango, ovo de codorna e queijo.", price: 55.00 },
-                { name: "Picado 1 (Média)", description: "Batata frita, calabresa, frango, ovo de codorna e queijo.", price: 65.00 },
-                { name: "Picado 1 (Grande)", description: "Batata frita, calabresa, frango, ovo de codorna e queijo.", price: 75.00 },
-                { name: "Picado 2 (Pequena)", description: "Batata frita, calabresa, coração, bacon, ovo de codorna e queijo.", price: 55.00 },
-                { name: "Picado 2 (Média)", description: "Batata frita, calabresa, coração, bacon, ovo de codorna e queijo.", price: 65.00 },
-                { name: "Picado 2 (Grande)", description: "Batata frita, calabresa, coração, bacon, ovo de codorna e queijo.", price: 75.00 },
-                { name: "Fritas com Queijo (Pequena)", description: "Porção de batatas fritas cobertas com queijo derretido.", price: 17.00 },
-                { name: "Fritas com Queijo (Média)", description: "Porção de batatas fritas cobertas com queijo derretido.", price: 22.00 },
-                { name: "Fritas com Queijo (Grande)", description: "Porção de batatas fritas cobertas com queijo derretido.", price: 27.00 },
+                { name: "Picado 1 (Pequena)", description: "Batata frita, calabresa, frango, ovo de codorna e queijo.", price: 65.00 },
+                { name: "Picado 1 (Média)", description: "Batata frita, calabresa, frango, ovo de codorna e queijo.", price: 75.00 },
+                { name: "Picado 1 (Grande)", description: "Batata frita, calabresa, frango, ovo de codorna e queijo.", price: 85.00 },
+                { name: "Picado 2 (Pequena)", description: "Batata frita, calabresa, coração, bacon, ovo de codorna e queijo.", price: 65.00 },
+                { name: "Picado 2 (Média)", description: "Batata frita, calabresa, coração, bacon, ovo de codorna e queijo.", price: 75.00 },
+                { name: "Picado 2 (Grande)", description: "Batata frita, calabresa, coração, bacon, ovo de codorna e queijo.", price: 85.00 },
+                { name: "Fritas com Queijo (Pequena)", description: "", price: 25.00 },
+                { name: "Fritas com Queijo (Média)", description: "", price: 30.00 },
+                { name: "Fritas com Queijo (Grande)", description: "", price: 35.00 },
             ]
         },
         {
             category: "Pastéis",
             items: [
-                { name: "Pastel de Carne", price: 8.00 },
-                { name: "Pastel de Frango", price: 8.00 },
-                { name: "Pastel de Presunto e Queijo", price: 8.00 },
-                { name: "Pastel de Frango com Catupiry", price: 9.00 },
-                { name: "Pastel de Carne com Queijo", price: 9.00 },
-                { name: "Pastel de Frango com Queijo", price: 9.00 },
-                { name: "Pastel de Carne, Frango, Presunto e Queijo", price: 12.00 },
-                { name: "Adicional de Ovo", price: 2.00 },
+                { name: "Carne / Frango / Presunto e Queijo", price: 10.00 },
+                { name: "Frango Catupiry", price: 11.00 },
+                { name: "Carne com Queijo / Frango com Queijo", price: 11.00 },
+                { name: "Carne, Frango, Presunto e Queijo", price: 15.00 },
+                { name: "Adicionais (Ovo)", price: 2.00 },
             ]
         },
         {
@@ -213,35 +242,164 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         }
     ];
-    
+
     const adItem = {
         isAd: true,
         title: "🚀 Turbine seu negócio com um Catálogo Inteligente!",
         description: "Aumente seus pedidos, fidelize clientes e automatize seu atendimento. Clique para saber mais.",
     };
-
-    // --- FUNÇÕES DE RENDERIZAÇÃO ---
+    
+    // --- ELEMENTOS DO DOM ---
     const menuContainer = document.getElementById('menu-container');
+    const aiRecommendationBtn = document.getElementById('ai-recommendation-button');
+    const aiPromptInput = document.getElementById('ai-prompt-input');
+    const aiRecommendationModal = document.getElementById('ai-recommendation-modal');
+    const closeAiModalBtn = document.getElementById('close-ai-modal');
+    const aiRecommendationContent = document.getElementById('ai-recommendation-content');
+    const offerPopup = document.getElementById('offer-popup');
+    const closeOfferPopupBtn = document.getElementById('close-offer-popup');
+    const ctaFooterBtn = document.getElementById('cta-footer-button');
+    const ctaPopupBtn = document.getElementById('cta-popup-button');
+    const cartButton = document.getElementById('cart-button');
+    const cartCount = document.getElementById('cart-count');
+    const cartPanel = document.getElementById('cart-panel');
+    const cartPanelOverlay = document.getElementById('cart-panel-overlay');
+    const closeCartButton = document.getElementById('close-cart-button');
+    const cartItemsContainer = document.getElementById('cart-items-container');
+    const cartTotal = document.getElementById('cart-total');
+    const checkoutButton = document.getElementById('checkout-button');
 
-    function createOrderButton(itemName) {
+    // --- LÓGICA DO CARRINHO ---
+    let cart = JSON.parse(localStorage.getItem('lancheriaCart')) || [];
+
+    function findItemDetails(itemName) {
+        for (const category of menuData) {
+            const foundItem = category.items.find(item => item.name === itemName);
+            if (foundItem) return {...foundItem, category: category.category};
+        }
+        return null;
+    }
+
+    function addToCart(itemName) {
+        const itemInCart = cart.find(item => item.name === itemName);
+        if (itemInCart) {
+            itemInCart.quantity++;
+        } else {
+            const itemDetails = findItemDetails(itemName);
+            if (itemDetails) {
+                cart.push({ ...itemDetails, quantity: 1 });
+            }
+        }
+        updateCart();
+    }
+    
+    function updateQuantity(itemName, newQuantity) {
+        const itemInCart = cart.find(item => item.name === itemName);
+        if (itemInCart) {
+            if (newQuantity > 0) {
+                itemInCart.quantity = newQuantity;
+            } else {
+                cart = cart.filter(item => item.name !== itemName);
+            }
+        }
+        updateCart();
+    }
+
+    function updateCart() {
+        localStorage.setItem('lancheriaCart', JSON.stringify(cart));
+        renderCartItems();
+        updateCartCount();
+        updateCartTotal();
+    }
+    
+    function updateCartCount() {
+        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+        cartCount.textContent = totalItems;
+        cartCount.classList.toggle('hidden', totalItems === 0);
+    }
+    
+    function updateCartTotal() {
+        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        cartTotal.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    }
+
+    function renderCartItems() {
+        cartItemsContainer.innerHTML = '';
+        if (cart.length === 0) {
+            cartItemsContainer.innerHTML = `<p class="text-brand-subtle text-center">Seu carrinho está vazio.</p>`;
+            return;
+        }
+
+        cart.forEach(item => {
+            const itemElement = document.createElement('div');
+            itemElement.className = 'flex items-center justify-between py-2';
+            itemElement.innerHTML = `
+                <div class="flex-grow pr-2">
+                    <p class="font-semibold">${item.name}</p>
+                    <p class="text-sm text-brand-subtle">R$ ${item.price.toFixed(2).replace('.', ',')}</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button data-name="${item.name}" class="quantity-change bg-gray-700 rounded-md p-1 w-6 h-6 flex items-center justify-center">-</button>
+                    <span>${item.quantity}</span>
+                    <button data-name="${item.name}" class="quantity-change bg-gray-700 rounded-md p-1 w-6 h-6 flex items-center justify-center">+</button>
+                </div>
+            `;
+            cartItemsContainer.appendChild(itemElement);
+        });
+        
+        document.querySelectorAll('.quantity-change').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const itemName = e.currentTarget.dataset.name;
+                const itemInCart = cart.find(item => item.name === itemName);
+                if (itemInCart) {
+                    const newQuantity = e.currentTarget.textContent === '+' ? itemInCart.quantity + 1 : itemInCart.quantity - 1;
+                    updateQuantity(itemName, newQuantity);
+                }
+            });
+        });
+    }
+    
+    function generateWhatsAppMessage() {
+        if (cart.length === 0) return "Olá! Gostaria de ver o cardápio.";
+        let message = "Olá! Gostaria de fazer o seguinte pedido:\n\n";
+        cart.forEach(item => {
+            message += `✅ ${item.quantity} ${item.name}\n`;
+        });
+        return message;
+    }
+    
+    function openCart() {
+        cartPanelOverlay.classList.remove('hidden');
+        cartPanel.classList.remove('hidden');
+        cartPanel.classList.add('animate-slide-in-right');
+        cartPanel.classList.remove('animate-slide-out-right');
+    }
+    
+    function closeCart() {
+        cartPanelOverlay.classList.add('animate-fade-out');
+        cartPanel.classList.remove('animate-slide-in-right');
+        cartPanel.classList.add('animate-slide-out-right');
+        setTimeout(() => {
+            cartPanelOverlay.classList.add('hidden');
+            cartPanel.classList.add('hidden');
+            cartPanelOverlay.classList.remove('animate-fade-out');
+        }, 300);
+    }
+    
+    // --- FUNÇÕES DE RENDERIZAÇÃO DO MENU ---
+    function createAddButton(item) {
         const button = document.createElement('button');
         button.className = "bg-brand-primary hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 whitespace-nowrap text-sm";
-        button.textContent = "Pedir";
-        button.onclick = () => {
-            const message = encodeURIComponent(`✅ 1 ${itemName}`);
-            window.open(`https://wa.me/${restaurantWhatsapp}?text=${message}`, '_blank');
-        };
+        button.textContent = "Adicionar";
+        button.onclick = () => addToCart(item.name);
         return button;
     }
 
     function renderMenu() {
-        // Inserir anúncios aleatoriamente
-        const itemsWithAds = [...menuData];
-        // Ad 1 na categoria Lanches
+        const itemsWithAds = JSON.parse(JSON.stringify(menuData)); // Deep copy
         if(itemsWithAds[0] && itemsWithAds[0].items.length > 5) {
             itemsWithAds[0].items.splice(5, 0, adItem);
         }
-        // Ad 2 na categoria Porções
         if(itemsWithAds[1] && itemsWithAds[1].items.length > 3) {
             itemsWithAds[1].items.splice(3, 0, adItem);
         }
@@ -260,14 +418,13 @@ document.addEventListener('DOMContentLoaded', () => {
             
             category.items.forEach(item => {
                 const itemCard = document.createElement('div');
-                
                 if (item.isAd) {
                     itemCard.className = "bg-brand-primary/20 border-2 border-dashed border-brand-primary rounded-lg p-4 flex flex-col justify-center items-center text-center cursor-pointer";
                     itemCard.innerHTML = `
                         <h3 class="font-bold text-brand-secondary">${item.title}</h3>
                         <p class="text-sm text-brand-subtle mt-1">${item.description}</p>
                     `;
-                    itemCard.onclick = openSubmissionPopup;
+                    itemCard.onclick = () => showPopup(offerPopup);
                 } else {
                     itemCard.className = "bg-brand-surface rounded-lg p-4 flex items-start justify-between space-x-4";
                     const itemInfo = `
@@ -278,7 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     `;
                     itemCard.innerHTML = itemInfo;
-                    itemCard.appendChild(createOrderButton(item.name));
+                    itemCard.appendChild(createAddButton(item));
                 }
                 itemsGrid.appendChild(itemCard);
             });
@@ -288,95 +445,163 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- LÓGICA DOS POPUPS E MARKETING ---
-
-    const offerPopup = document.getElementById('offer-popup');
-    const submissionPopup = document.getElementById('submission-popup');
-    const closeOfferPopupBtn = document.getElementById('close-offer-popup');
-    const closeSubmissionPopupBtn = document.getElementById('close-submission-popup');
-    const ctaPopupBtn = document.getElementById('cta-popup-button');
-    const ctaFooterBtn = document.getElementById('cta-footer-button');
-    const submissionForm = document.getElementById('submission-form');
-    const submissionFormContainer = document.getElementById('submission-form-container');
-    const submissionSuccess = document.getElementById('submission-success');
-    const fileUpload = document.getElementById('file-upload');
-    const fileNameDisplay = document.getElementById('file-name');
-
-    // Funções para controlar a visibilidade dos popups
+    // --- LÓGICA DO MODAL E IA ---
     const showPopup = (popup) => {
         popup.classList.remove('hidden');
-        popup.classList.remove('animate-fade-out');
         popup.classList.add('animate-fade-in');
-        const inner = popup.querySelector(':scope > div');
-        if (inner) {
-            inner.classList.remove('animate-slide-out-down');
-            inner.classList.add('animate-slide-in-up');
-        }
+        popup.querySelector(':scope > div').classList.remove('animate-slide-out-down');
+        popup.querySelector(':scope > div').classList.add('animate-slide-in-up');
     };
 
     const hidePopup = (popup) => {
         popup.classList.remove('animate-fade-in');
         popup.classList.add('animate-fade-out');
-        const inner = popup.querySelector(':scope > div');
-        if (inner) {
-            inner.classList.remove('animate-slide-in-up');
-            inner.classList.add('animate-slide-out-down');
-        }
+        popup.querySelector(':scope > div').classList.remove('animate-slide-in-up');
+        popup.querySelector(':scope > div').classList.add('animate-slide-out-down');
         setTimeout(() => popup.classList.add('hidden'), 500);
     };
-    
-    const openSubmissionPopup = () => {
-        hidePopup(offerPopup);
-        submissionFormContainer.style.display = 'block';
-        submissionSuccess.style.display = 'none';
-        submissionForm.reset();
-        fileNameDisplay.textContent = '';
-        showPopup(submissionPopup);
+
+    // --- LÓGICA DA API GEMINI ---
+    const API_KEY = ""; // Deixe em branco
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
+
+    const getAiRecommendation = async (userInput) => {
+        const prompt = `Você é o Chef da 'Lancheria Alternativa'. Um cliente disse que está com vontade de comer: '${userInput}'. Sua tarefa é analisar o pedido e o nosso cardápio em JSON para fazer a melhor recomendação.
+        1.  Primeiro, identifique a **categoria** principal que o cliente deseja (ex: 'lanche', 'porção', 'pastel'). Se uma categoria for mencionada, sua recomendação DEVE pertencer a essa categoria.
+        2.  Em seguida, encontre o item dentro da categoria correta que melhor corresponde aos **ingredientes** ou características que o cliente pediu (ex: 'bacon', 'ovo', 'grande').
+        3.  Se nenhum item tiver TODOS os ingredientes pedidos, encontre o item mais próximo. Depois, verifique se o ingrediente faltante existe como um item na categoria "Pastéis" com o nome "Adicionais (Ovo)".
+        4.  Recomende o item principal. Se você encontrou um ingrediente faltante que pode ser adicionado, inclua o nome do item adicional no campo 'suggestedAdicional'. Caso contrário, deixe esse campo como null.
+        5.  Crie uma descrição curta (máximo 2 frases) e convidativa para sua recomendação.
+        6.  Retorne um objeto JSON com o nome do item principal, sua descrição criativa e, opcionalmente, o nome do adicional sugerido.
+        Cardápio: ${JSON.stringify(menuData)}`;
+
+        const payload = {
+            contents: [{ parts: [{ text: prompt }] }],
+            generation_config: {
+                response_mime_type: "application/json",
+                response_schema: {
+                    type: "OBJECT",
+                    properties: {
+                        itemName: { type: "STRING" },
+                        creativeDescription: { type: "STRING" },
+                        suggestedAdicional: { type: "STRING", nullable: true }
+                    },
+                    required: ["itemName", "creativeDescription"]
+                }
+            }
+        };
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) throw new Error('API Error');
+            const result = await response.json();
+            const contentPart = result.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!contentPart) throw new Error("Resposta da API inválida.");
+            return JSON.parse(contentPart);
+        } catch (error) {
+            console.error("Erro ao buscar recomendação da IA:", error);
+            return null;
+        }
     };
 
-    // Popup de oferta inicial (após 10 segundos)
-    setTimeout(() => {
-        if (!sessionStorage.getItem('offerShown')) {
-            showPopup(offerPopup);
-            sessionStorage.setItem('offerShown', 'true');
+    const renderRecommendation = (recommendation) => {
+        aiRecommendationContent.innerHTML = '';
+        if (!recommendation || !recommendation.itemName) {
+            aiRecommendationContent.innerHTML = `<p class="text-brand-subtle">Desculpe, não consegui encontrar uma boa sugestão para isso. Que tal tentar um dos nossos clássicos?</p>`;
+            return;
         }
-    }, 10000);
 
-    // Popup de intenção de saída
-    let interaction = false;
-    document.body.addEventListener('click', () => { interaction = true; }, { once: true });
+        const itemDetails = findItemDetails(recommendation.itemName);
+        if (!itemDetails) {
+            aiRecommendationContent.innerHTML = `<p class="text-brand-subtle">A IA sugeriu algo que não encontramos no cardápio. Tente ser mais específico!</p>`;
+            return;
+        }
+
+        const descriptionElement = document.createElement('p');
+        descriptionElement.className = 'text-brand-subtle mb-4 text-base italic';
+        descriptionElement.textContent = `"${recommendation.creativeDescription}"`;
+        aiRecommendationContent.appendChild(descriptionElement);
+
+        const mainItemCard = document.createElement('div');
+        mainItemCard.className = 'bg-brand-background rounded-lg p-4 flex justify-between items-center text-left';
+        mainItemCard.innerHTML = `
+            <div class="flex-1 pr-2">
+                <h3 class="font-semibold text-lg text-brand-text">${itemDetails.name}</h3>
+                <p class="font-bold text-brand-secondary mt-1">R$ ${itemDetails.price.toFixed(2).replace('.', ',')}</p>
+            </div>
+        `;
+        const addMainButton = document.createElement('button');
+        addMainButton.className = "bg-brand-primary hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg text-sm";
+        addMainButton.textContent = "Adicionar";
+        addMainButton.onclick = () => {
+            addToCart(itemDetails.name);
+            hidePopup(aiRecommendationModal);
+        };
+        mainItemCard.appendChild(addMainButton);
+        aiRecommendationContent.appendChild(mainItemCard);
+
+        if (recommendation.suggestedAdicional) {
+            const adicionalDetails = findItemDetails(recommendation.suggestedAdicional);
+            if (adicionalDetails) {
+                const adicionalCard = document.createElement('div');
+                adicionalCard.className = 'mt-3 bg-brand-background rounded-lg p-4 flex justify-between items-center text-left border-t-2 border-dashed border-brand-secondary';
+                adicionalCard.innerHTML = `
+                    <div class="flex-1 pr-2">
+                        <h3 class="font-semibold text-lg text-brand-text">Sugestão: <span class="font-normal">${adicionalDetails.name}</span></h3>
+                        <p class="font-bold text-brand-secondary mt-1">+ R$ ${adicionalDetails.price.toFixed(2).replace('.', ',')}</p>
+                    </div>
+                `;
+                 const addAdicionalButton = document.createElement('button');
+                addAdicionalButton.className = "bg-brand-primary hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg text-sm";
+                addAdicionalButton.textContent = "Adicionar";
+                addAdicionalButton.onclick = () => {
+                    addToCart(adicionalDetails.name);
+                    hidePopup(aiRecommendationModal);
+                };
+                adicionalCard.appendChild(addAdicionalButton);
+                aiRecommendationContent.appendChild(adicionalCard);
+            }
+        }
+    };
+
+    // --- EVENT LISTENERS ---
+    aiRecommendationBtn.addEventListener('click', async () => {
+        const userInput = aiPromptInput.value.trim();
+        if (!userInput) {
+            alert("Por favor, diga o que você gostaria de comer!");
+            return;
+        }
+        
+        showPopup(aiRecommendationModal);
+        aiRecommendationContent.innerHTML = '<div class="w-8 h-8 border-4 border-dashed rounded-full animate-spin border-brand-primary mx-auto"></div>';
+        const recommendation = await getAiRecommendation(userInput);
+        renderRecommendation(recommendation);
+    });
+
+    closeAiModalBtn.addEventListener('click', () => hidePopup(aiRecommendationModal));
     
-    document.addEventListener('mouseleave', (e) => {
-        if (e.clientY <= 0 && !sessionStorage.getItem('exitIntentShown') && !interaction) {
-            showPopup(offerPopup);
-            sessionStorage.setItem('exitIntentShown', 'true');
-            sessionStorage.setItem('offerShown', 'true');
-        }
+    // Event Listeners do Carrinho
+    cartButton.addEventListener('click', openCart);
+    closeCartButton.addEventListener('click', closeCart);
+    cartPanelOverlay.addEventListener('click', closeCart);
+    checkoutButton.addEventListener('click', () => {
+        const message = generateWhatsAppMessage();
+        window.open(`https://wa.me/${restaurantWhatsapp}?text=${encodeURIComponent(message)}`, '_blank');
     });
 
-    // Event Listeners dos botões
+    // Lógica dos popups de marketing
+    const openSalesPage = () => window.open('https://meucatalogointeligente.onrender.com', '_blank'); // Link para sua página de vendas
+    ctaFooterBtn.addEventListener('click', () => showPopup(offerPopup));
+    ctaPopupBtn.addEventListener('click', openSalesPage);
     closeOfferPopupBtn.addEventListener('click', () => hidePopup(offerPopup));
-    closeSubmissionPopupBtn.addEventListener('click', () => hidePopup(submissionPopup));
-    ctaPopupBtn.addEventListener('click', openSubmissionPopup);
-    ctaFooterBtn.addEventListener('click', openSubmissionPopup);
-
-    fileUpload.addEventListener('change', () => {
-        fileNameDisplay.textContent = fileUpload.files.length > 0 ? fileUpload.files[0].name : '';
-    });
-
-    // Simulação de envio para Telegram
-    submissionForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        submissionFormContainer.style.display = 'none';
-        submissionSuccess.style.display = 'block';
-
-        setTimeout(() => {
-            hidePopup(submissionPopup);
-        }, 5000);
-    });
 
     // --- INICIALIZAÇÃO ---
     renderMenu();
+    updateCart(); // Para carregar o carrinho salvo
 });
 </script>
 
