@@ -159,14 +159,16 @@
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
             <h2 class="text-2xl font-bold text-brand-primary mb-3">Transforme Seu Catálogo, Aumente Suas Vendas!</h2>
-            <p class="text-brand-subtle mb-5">Tenha um Catálogo Inteligente, interativo e que vende por você, 24h por dia.</p>
+            <p class="text-brand-subtle mb-5">Cansado de catálogos ultrapassados? Tenha um Catálogo Inteligente, interativo e que vende por você, 24h por dia.</p>
             <div class="bg-gray-800 p-4 rounded-lg mb-5 text-left">
                 <p class="font-semibold text-white">🔥 Oferta Exclusiva por Tempo Limitado:</p>
                 <ul class="list-disc list-inside text-brand-subtle mt-2 space-y-1 text-sm">
                     <li><span class="font-bold text-green-400">7 DIAS GRÁTIS</span> para testar sem compromisso.</li>
                     <li>Após o teste, o catálogo é seu para <span class="font-bold text-white">SEMPRE</span>.</li>
                     <li>Taxa única de criação: <span class="line-through">R$29,90</span> por apenas <span class="font-bold text-green-400">R$9,90</span>.</li>
+                    <li>Atualizações futuras? Apenas R$4,90 (e somente se você precisar!).</li>
                 </ul>
+                <p class="text-xs text-center mt-3 text-gray-400">Sem mensalidades. Sem pegadinhas.</p>
             </div>
             <button id="cta-popup-button" class="w-full bg-brand-primary hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition-transform transform hover:scale-105">QUERO MEU TESTE GRÁTIS!</button>
         </div>
@@ -626,10 +628,21 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
+        aiRecommendationBtn.disabled = true;
+        aiRecommendationBtn.textContent = 'Pensando...';
+        
         showPopup(aiRecommendationModal);
         aiRecommendationContent.innerHTML = '<div class="w-8 h-8 border-4 border-dashed rounded-full animate-spin border-brand-primary mx-auto"></div>';
-        const recommendation = await getAiRecommendation(userInput);
-        renderRecommendation(recommendation);
+        
+        try {
+            const recommendation = await getAiRecommendation(userInput);
+            renderRecommendation(recommendation);
+        } catch (error) {
+            renderRecommendation(null);
+        } finally {
+            aiRecommendationBtn.disabled = false;
+            aiRecommendationBtn.textContent = 'Sugerir';
+        }
     });
 
     closeAiModalBtn.addEventListener('click', () => hidePopup(aiRecommendationModal));
@@ -716,6 +729,23 @@ document.addEventListener('DOMContentLoaded', () => {
     
     document.addEventListener('mouseleave', (e) => {
         if (e.clientY <= 0 && !sessionStorage.getItem('exitIntentShown') && !interaction) {
+            showPopup(offerPopup);
+            sessionStorage.setItem('exitIntentShown', 'true');
+            sessionStorage.setItem('offerShown', 'true');
+        }
+    });
+    
+    // Lógica para o botão "Voltar" (back redirect)
+    let hasPushedState = false;
+    setTimeout(() => {
+       if (!interaction && !hasPushedState) {
+           history.pushState({ popup: 'exit' }, '');
+           hasPushedState = true;
+       }
+    }, 15000);
+
+    window.addEventListener('popstate', (event) => {
+        if (event.state && event.state.popup === 'exit' && !sessionStorage.getItem('exitIntentShown')) {
             showPopup(offerPopup);
             sessionStorage.setItem('exitIntentShown', 'true');
             sessionStorage.setItem('offerShown', 'true');
