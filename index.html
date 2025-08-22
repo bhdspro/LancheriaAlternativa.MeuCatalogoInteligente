@@ -172,6 +172,33 @@
         </div>
     </div>
 
+    <!-- Popup de Envio de Catálogo (para Marketing) -->
+    <div id="submission-popup" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 animate-fade-in">
+        <div class="bg-brand-surface rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full relative animate-slide-in-up">
+            <button id="close-submission-popup" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <div id="submission-form-container">
+                <h2 class="text-2xl font-bold text-brand-primary mb-3 text-center">Ótima decisão!</h2>
+                <p class="text-brand-subtle mb-6 text-center">Envie seu catálogo atual e seu WhatsApp. Entregaremos sua nova versão inteligente em até 24 horas!</p>
+                <form id="submission-form" class="space-y-4">
+                    <input type="text" id="whatsapp-input" placeholder="Seu WhatsApp com DDD" required class="w-full bg-gray-800 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                    <input type="text" id="link-input" placeholder="Ou cole o link do catálogo aqui" class="w-full bg-gray-800 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                    <label for="file-upload" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center cursor-pointer">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                        <span id="file-label">Anexar arquivo do catálogo</span>
+                    </label>
+                    <input id="file-upload" type="file" class="hidden">
+                    <button type="submit" class="w-full bg-brand-primary hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition-transform transform hover:scale-105">Enviar para Teste Grátis</button>
+                </form>
+            </div>
+             <div id="submission-success" class="hidden text-center">
+                 <h2 class="text-2xl font-bold text-green-400 mb-3">Enviado com Sucesso!</h2>
+                 <p class="text-brand-subtle">Recebemos suas informações. Em breve, nossa equipe entrará em contato pelo WhatsApp para entregar seu novo Catálogo Inteligente. Fique de olho!</p>
+            </div>
+        </div>
+    </div>
+
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -268,6 +295,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const cartItemsContainer = document.getElementById('cart-items-container');
     const cartTotal = document.getElementById('cart-total');
     const checkoutButton = document.getElementById('checkout-button');
+    const submissionPopup = document.getElementById('submission-popup');
+    const closeSubmissionPopupBtn = submissionPopup.querySelector('#close-submission-popup');
+    const submissionForm = document.getElementById('submission-form');
+    const submissionFormContainer = document.getElementById('submission-form-container');
+    const submissionSuccess = document.getElementById('submission-success');
+    const fileUpload = document.getElementById('file-upload');
+    const fileLabel = document.getElementById('file-label');
 
     // --- LÓGICA DO CARRINHO ---
     let cart = JSON.parse(localStorage.getItem('lancheriaCart')) || [];
@@ -397,12 +431,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderMenu() {
         const itemsWithAds = JSON.parse(JSON.stringify(menuData)); // Deep copy
-        if(itemsWithAds[0] && itemsWithAds[0].items.length > 5) {
-            itemsWithAds[0].items.splice(5, 0, adItem);
+        
+        const adSpots = [];
+        itemsWithAds.forEach((category, catIndex) => {
+            if (category.items.length > 2) {
+                for (let i = 1; i < category.items.length; i++) {
+                    adSpots.push({cat: catIndex, item: i});
+                }
+            }
+        });
+
+        for (let i = adSpots.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [adSpots[i], adSpots[j]] = [adSpots[j], adSpots[i]];
         }
-        if(itemsWithAds[1] && itemsWithAds[1].items.length > 3) {
-            itemsWithAds[1].items.splice(3, 0, adItem);
-        }
+
+        const adsToPlace = Math.min(2, adSpots.length);
+        const chosenSpots = adSpots.slice(0, adsToPlace);
+        chosenSpots.sort((a, b) => b.cat - a.cat || b.item - a.item);
+        chosenSpots.forEach(spot => {
+            itemsWithAds[spot.cat].items.splice(spot.item, 0, adItem);
+        });
+
 
         itemsWithAds.forEach(category => {
             const categorySection = document.createElement('section');
@@ -594,10 +644,58 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Lógica dos popups de marketing
-    const openSalesPage = () => window.open('https://meucatalogointeligente.onrender.com', '_blank'); // Link para sua página de vendas
+    const openSubmissionPopup = () => {
+        hidePopup(offerPopup);
+        submissionFormContainer.classList.remove('hidden');
+        submissionSuccess.classList.add('hidden');
+        submissionForm.reset();
+        fileLabel.textContent = 'Anexar arquivo do catálogo';
+        showPopup(submissionPopup);
+    };
+    
     ctaFooterBtn.addEventListener('click', () => showPopup(offerPopup));
-    ctaPopupBtn.addEventListener('click', openSalesPage);
+    ctaPopupBtn.addEventListener('click', openSubmissionPopup);
     closeOfferPopupBtn.addEventListener('click', () => hidePopup(offerPopup));
+    closeSubmissionPopupBtn.addEventListener('click', () => hidePopup(submissionPopup));
+
+    submissionForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitButton = e.target.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.textContent = 'Enviando...';
+        
+        // Simulação de envio para o backend
+        console.log("Formulário de marketing enviado!");
+        
+        submissionFormContainer.classList.add('hidden');
+        submissionSuccess.classList.remove('hidden');
+
+        setTimeout(() => {
+            hidePopup(submissionPopup);
+            submitButton.disabled = false;
+            submitButton.textContent = 'Enviar para Teste Grátis';
+        }, 5000);
+    });
+    
+    // Popup de oferta inicial (após 10 segundos)
+    setTimeout(() => {
+        if (!sessionStorage.getItem('offerShown')) {
+            showPopup(offerPopup);
+            sessionStorage.setItem('offerShown', 'true');
+        }
+    }, 10000);
+
+    // Popup de intenção de saída
+    let interaction = false;
+    document.body.addEventListener('click', () => { interaction = true; }, { once: true });
+    
+    document.addEventListener('mouseleave', (e) => {
+        if (e.clientY <= 0 && !sessionStorage.getItem('exitIntentShown') && !interaction) {
+            showPopup(offerPopup);
+            sessionStorage.setItem('exitIntentShown', 'true');
+            sessionStorage.setItem('offerShown', 'true');
+        }
+    });
 
     // --- INICIALIZAÇÃO ---
     renderMenu();
