@@ -30,12 +30,16 @@
                         'fade-out': 'fadeOut 0.5s ease-in forwards',
                         'slide-in-up': 'slideInUp 0.5s ease-out forwards',
                         'slide-out-down': 'slideOutDown 0.5s ease-in forwards',
+                        'slide-in-right': 'slideInRight 0.3s ease-out forwards',
+                        'slide-out-right': 'slideOutRight 0.3s ease-in forwards',
                     },
                     keyframes: {
                         fadeIn: { '0%': { opacity: 0 }, '100%': { opacity: 1 } },
                         fadeOut: { '0%': { opacity: 1 }, '100%': { opacity: 0 } },
                         slideInUp: { '0%': { transform: 'translateY(100%)', opacity: 0 }, '100%': { transform: 'translateY(0)', opacity: 1 } },
                         slideOutDown: { '0%': { transform: 'translateY(0)', opacity: 1 }, '100%': { transform: 'translateY(100%)', opacity: 0 } },
+                        slideInRight: { '0%': { transform: 'translateX(100%)' }, '100%': { transform: 'translateX(0)' } },
+                        slideOutRight: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(100%)' } },
                     }
                 }
             }
@@ -47,6 +51,18 @@
         ::-webkit-scrollbar-track { background: #1F2937; }
         ::-webkit-scrollbar-thumb { background: #4B5563; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #6B7280; }
+        
+        /* Estilo para mensagem de erro customizada */
+        .form-error-message {
+            display: none;
+            background-color: #7f1d1d;
+            color: #fecaca;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            text-align: center;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body class="bg-brand-background text-brand-text font-sans antialiased">
@@ -91,9 +107,38 @@
         </footer>
     </div>
 
+    <!-- Botão Flutuante do Carrinho -->
+    <button id="cart-button" class="fixed bottom-6 right-6 bg-brand-primary hover:bg-orange-600 text-white p-4 rounded-full shadow-lg transition-transform transform hover:scale-110 z-30">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+        <span id="cart-count" class="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">0</span>
+    </button>
+    
+    <!-- Painel do Carrinho -->
+    <div id="cart-panel-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 animate-fade-in"></div>
+    <div id="cart-panel" class="hidden fixed top-0 right-0 h-full w-full max-w-md bg-brand-background shadow-2xl z-50 flex flex-col">
+        <div class="flex justify-between items-center p-4 border-b border-gray-700">
+            <h2 class="text-2xl font-bold text-white">Seu Pedido</h2>
+            <button id="close-cart-button" class="text-gray-400 hover:text-white">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </div>
+        <div id="cart-items-container" class="flex-grow p-4 overflow-y-auto">
+            <!-- Itens do carrinho serão inseridos aqui -->
+        </div>
+        <div class="p-4 border-t border-gray-700">
+            <div class="flex justify-between items-center text-lg font-bold">
+                <span>Total:</span>
+                <span id="cart-total">R$ 0,00</span>
+            </div>
+            <button id="checkout-button" class="mt-4 w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-4 rounded-lg text-lg">
+                Enviar Pedido via WhatsApp
+            </button>
+        </div>
+    </div>
+
     <!-- Popup de Oferta Inicial -->
-    <div id="offer-popup" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 animate-fade-in">
-        <div class="bg-brand-surface rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full text-center relative animate-slide-in-up">
+    <div id="offer-popup" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
+        <div class="bg-brand-surface rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full text-center relative">
             <button id="close-offer-popup" class="absolute top-4 right-4 text-gray-400 hover:text-white">
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
@@ -114,8 +159,8 @@
     </div>
 
     <!-- Popup de Envio de Catálogo -->
-    <div id="submission-popup" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 animate-fade-in">
-        <div class="bg-brand-surface rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full relative animate-slide-in-up">
+    <div id="submission-popup" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
+        <div class="bg-brand-surface rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full relative">
             <button id="close-submission-popup" class="absolute top-4 right-4 text-gray-400 hover:text-white">
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
@@ -133,6 +178,7 @@
                     <p id="file-name" class="text-sm text-center text-brand-subtle"></p>
                     <button type="submit" class="w-full bg-brand-primary hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition-transform transform hover:scale-105">Enviar e Começar Teste Grátis</button>
                 </form>
+                <div id="form-error" class="form-error-message"></div>
             </div>
             <div id="submission-success" class="hidden text-center">
                  <h2 class="text-2xl font-bold text-green-400 mb-3">Enviado com Sucesso!</h2>
@@ -146,7 +192,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- DADOS DO CATÁLOGO (ATUALIZADO) ---
-    const restaurantWhatsapp = "5543988222204"; // Usando o número do menu antigo, pois o novo tem um dígito a mais
+    const restaurantWhatsapp = "5543988222204"; 
     const menuData = [
         {
             category: "Lanches",
@@ -211,38 +257,189 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         }
     ];
-    
+
     const adItem = {
         isAd: true,
         title: "🚀 Turbine seu negócio com um Catálogo Inteligente!",
         description: "Aumente seus pedidos, fidelize clientes e automatize seu atendimento. Clique para saber mais.",
     };
-
-    // --- FUNÇÕES DE RENDERIZAÇÃO ---
+    
+    // --- ELEMENTOS DO DOM ---
     const menuContainer = document.getElementById('menu-container');
+    const offerPopup = document.getElementById('offer-popup');
+    const closeOfferPopupBtn = document.getElementById('close-offer-popup');
+    const ctaFooterBtn = document.getElementById('cta-footer-button');
+    const ctaPopupBtn = document.getElementById('cta-popup-button');
+    const cartButton = document.getElementById('cart-button');
+    const cartCount = document.getElementById('cart-count');
+    const cartPanel = document.getElementById('cart-panel');
+    const cartPanelOverlay = document.getElementById('cart-panel-overlay');
+    const closeCartButton = document.getElementById('close-cart-button');
+    const cartItemsContainer = document.getElementById('cart-items-container');
+    const cartTotal = document.getElementById('cart-total');
+    const checkoutButton = document.getElementById('checkout-button');
+    const submissionPopup = document.getElementById('submission-popup');
+    const closeSubmissionPopupBtn = submissionPopup.querySelector('#close-submission-popup');
+    const submissionForm = document.getElementById('submission-form');
+    const submissionFormContainer = document.getElementById('submission-form-container');
+    const submissionSuccess = document.getElementById('submission-success');
+    const fileUpload = document.getElementById('file-upload');
+    const fileNameDisplay = document.getElementById('file-name');
+    const formError = document.getElementById('form-error');
 
-    function createOrderButton(itemName) {
+    // --- LÓGICA DO CARRINHO ---
+    let cart = JSON.parse(localStorage.getItem('lancheriaCart')) || [];
+
+    function findItemDetails(itemName) {
+        for (const category of menuData) {
+            const foundItem = category.items.find(item => item.name === itemName);
+            if (foundItem) return {...foundItem, category: category.category};
+        }
+        return null;
+    }
+
+    function addToCart(itemName) {
+        const itemInCart = cart.find(item => item.name === itemName);
+        if (itemInCart) {
+            itemInCart.quantity++;
+        } else {
+            const itemDetails = findItemDetails(itemName);
+            if (itemDetails) {
+                cart.push({ ...itemDetails, quantity: 1 });
+            }
+        }
+        updateCart();
+    }
+    
+    function updateQuantity(itemName, newQuantity) {
+        const itemInCart = cart.find(item => item.name === itemName);
+        if (itemInCart) {
+            if (newQuantity > 0) {
+                itemInCart.quantity = newQuantity;
+            } else {
+                cart = cart.filter(item => item.name !== itemName);
+            }
+        }
+        updateCart();
+    }
+
+    function updateCart() {
+        localStorage.setItem('lancheriaCart', JSON.stringify(cart));
+        renderCartItems();
+        updateCartCount();
+        updateCartTotal();
+    }
+    
+    function updateCartCount() {
+        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+        cartCount.textContent = totalItems;
+        cartCount.classList.toggle('hidden', totalItems === 0);
+    }
+    
+    function updateCartTotal() {
+        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        cartTotal.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    }
+
+    function renderCartItems() {
+        cartItemsContainer.innerHTML = '';
+        if (cart.length === 0) {
+            cartItemsContainer.innerHTML = `<p class="text-brand-subtle text-center">Seu carrinho está vazio.</p>`;
+            return;
+        }
+
+        cart.forEach(item => {
+            const itemElement = document.createElement('div');
+            itemElement.className = 'flex items-center justify-between py-2';
+            itemElement.innerHTML = `
+                <div class="flex-grow pr-2">
+                    <p class="font-semibold">${item.name}</p>
+                    <p class="text-sm text-brand-subtle">R$ ${item.price.toFixed(2).replace('.', ',')}</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button data-name="${item.name}" class="quantity-change bg-gray-700 rounded-md p-1 w-6 h-6 flex items-center justify-center">-</button>
+                    <span>${item.quantity}</span>
+                    <button data-name="${item.name}" class="quantity-change bg-gray-700 rounded-md p-1 w-6 h-6 flex items-center justify-center">+</button>
+                </div>
+            `;
+            cartItemsContainer.appendChild(itemElement);
+        });
+        
+        document.querySelectorAll('.quantity-change').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const itemName = e.currentTarget.dataset.name;
+                const itemInCart = cart.find(item => item.name === itemName);
+                if (itemInCart) {
+                    const newQuantity = e.currentTarget.textContent === '+' ? itemInCart.quantity + 1 : itemInCart.quantity - 1;
+                    updateQuantity(itemName, newQuantity);
+                }
+            });
+        });
+    }
+    
+    function generateWhatsAppMessage() {
+        if (cart.length === 0) return "Olá! Gostaria de ver o cardápio.";
+        let message = "Olá! Gostaria de fazer o seguinte pedido:\n\n";
+        cart.forEach(item => {
+            // Alteração: Removido o 'x'
+            message += `✅ ${item.quantity} ${item.name}\n`;
+        });
+        // Alteração: Removida a linha do total
+        return message;
+    }
+    
+    function openCart() {
+        cartPanelOverlay.classList.remove('hidden');
+        cartPanel.classList.remove('hidden');
+        cartPanel.classList.add('animate-slide-in-right');
+        cartPanel.classList.remove('animate-slide-out-right');
+    }
+    
+    function closeCart() {
+        cartPanelOverlay.classList.add('animate-fade-out');
+        cartPanel.classList.remove('animate-slide-in-right');
+        cartPanel.classList.add('animate-slide-out-right');
+        setTimeout(() => {
+            cartPanelOverlay.classList.add('hidden');
+            cartPanel.classList.add('hidden');
+            cartPanelOverlay.classList.remove('animate-fade-out');
+        }, 300);
+    }
+    
+    // --- FUNÇÕES DE RENDERIZAÇÃO DO MENU ---
+    function createAddButton(item) {
         const button = document.createElement('button');
         button.className = "bg-brand-primary hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 whitespace-nowrap text-sm";
-        button.textContent = "Pedir";
-        button.onclick = () => {
-            const message = encodeURIComponent(`✅ 1 ${itemName}`);
-            window.open(`https://wa.me/${restaurantWhatsapp}?text=${message}`, '_blank');
-        };
+        button.textContent = "Adicionar";
+        button.onclick = () => addToCart(item.name);
         return button;
     }
 
     function renderMenu() {
-        // Inserir anúncios aleatoriamente
-        const itemsWithAds = [...menuData];
-        // Ad 1 na categoria Lanches
-        if(itemsWithAds[0] && itemsWithAds[0].items.length > 5) {
-            itemsWithAds[0].items.splice(5, 0, adItem);
+        const itemsWithAds = JSON.parse(JSON.stringify(menuData)); // Deep copy
+        
+        // Lógica para inserir anúncios aleatoriamente
+        const adSpots = [];
+        itemsWithAds.forEach((category, catIndex) => {
+            if (category.items.length > 2) {
+                for (let i = 1; i < category.items.length; i++) {
+                    adSpots.push({cat: catIndex, item: i});
+                }
+            }
+        });
+
+        for (let i = adSpots.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [adSpots[i], adSpots[j]] = [adSpots[j], adSpots[i]];
         }
-        // Ad 2 na categoria Porções
-        if(itemsWithAds[1] && itemsWithAds[1].items.length > 3) {
-            itemsWithAds[1].items.splice(3, 0, adItem);
-        }
+
+        const adsToPlace = Math.min(2, adSpots.length);
+        const chosenSpots = adSpots.slice(0, adsToPlace);
+        chosenSpots.sort((a, b) => b.cat - a.cat || b.item - a.item);
+        chosenSpots.forEach(spot => {
+            itemsWithAds[spot.cat].items.splice(spot.item, 0, adItem);
+        });
+
 
         itemsWithAds.forEach(category => {
             const categorySection = document.createElement('section');
@@ -258,14 +455,13 @@ document.addEventListener('DOMContentLoaded', () => {
             
             category.items.forEach(item => {
                 const itemCard = document.createElement('div');
-                
                 if (item.isAd) {
                     itemCard.className = "bg-brand-primary/20 border-2 border-dashed border-brand-primary rounded-lg p-4 flex flex-col justify-center items-center text-center cursor-pointer";
                     itemCard.innerHTML = `
                         <h3 class="font-bold text-brand-secondary">${item.title}</h3>
                         <p class="text-sm text-brand-subtle mt-1">${item.description}</p>
                     `;
-                    itemCard.onclick = openSubmissionPopup;
+                    itemCard.onclick = () => showPopup(offerPopup);
                 } else {
                     itemCard.className = "bg-brand-surface rounded-lg p-4 flex items-start justify-between space-x-4";
                     const itemInfo = `
@@ -276,7 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     `;
                     itemCard.innerHTML = itemInfo;
-                    itemCard.appendChild(createOrderButton(item.name));
+                    itemCard.appendChild(createAddButton(item));
                 }
                 itemsGrid.appendChild(itemCard);
             });
@@ -286,95 +482,136 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- LÓGICA DOS POPUPS E MARKETING ---
-
-    const offerPopup = document.getElementById('offer-popup');
-    const submissionPopup = document.getElementById('submission-popup');
-    const closeOfferPopupBtn = document.getElementById('close-offer-popup');
-    const closeSubmissionPopupBtn = document.getElementById('close-submission-popup');
-    const ctaPopupBtn = document.getElementById('cta-popup-button');
-    const ctaFooterBtn = document.getElementById('cta-footer-button');
-    const submissionForm = document.getElementById('submission-form');
-    const submissionFormContainer = document.getElementById('submission-form-container');
-    const submissionSuccess = document.getElementById('submission-success');
-    const fileUpload = document.getElementById('file-upload');
-    const fileNameDisplay = document.getElementById('file-name');
-
-    // Funções para controlar a visibilidade dos popups
+    // --- LÓGICA DO POPUP ---
     const showPopup = (popup) => {
         popup.classList.remove('hidden');
-        popup.classList.remove('animate-fade-out');
         popup.classList.add('animate-fade-in');
-        const inner = popup.querySelector(':scope > div');
-        if (inner) {
-            inner.classList.remove('animate-slide-out-down');
-            inner.classList.add('animate-slide-in-up');
-        }
+        popup.querySelector(':scope > div').classList.remove('animate-slide-out-down');
+        popup.querySelector(':scope > div').classList.add('animate-slide-in-up');
     };
 
     const hidePopup = (popup) => {
         popup.classList.remove('animate-fade-in');
         popup.classList.add('animate-fade-out');
-        const inner = popup.querySelector(':scope > div');
-        if (inner) {
-            inner.classList.remove('animate-slide-in-up');
-            inner.classList.add('animate-slide-out-down');
-        }
-        setTimeout(() => popup.classList.add('hidden'), 500);
+        popup.querySelector(':scope > div').classList.remove('animate-slide-in-up');
+        popup.querySelector(':scope > div').classList.add('animate-slide-out-down');
+        setTimeout(() => {
+            popup.classList.add('hidden');
+            popup.classList.remove('animate-fade-out'); // Reset animation class
+        }, 500);
     };
+
+    // --- EVENT LISTENERS ---
     
+    // Event Listeners do Carrinho
+    if(cartButton) cartButton.addEventListener('click', openCart);
+    if(closeCartButton) closeCartButton.addEventListener('click', closeCart);
+    if(cartPanelOverlay) cartPanelOverlay.addEventListener('click', closeCart);
+    if(checkoutButton) checkoutButton.addEventListener('click', () => {
+        const message = generateWhatsAppMessage();
+        window.open(`https://wa.me/${restaurantWhatsapp}?text=${encodeURIComponent(message)}`, '_blank');
+    });
+
+    // Lógica dos popups de marketing
     const openSubmissionPopup = () => {
         hidePopup(offerPopup);
-        submissionFormContainer.style.display = 'block';
-        submissionSuccess.style.display = 'none';
-        submissionForm.reset();
-        fileNameDisplay.textContent = '';
-        showPopup(submissionPopup);
+        // Delay to ensure the first popup is hidden before showing the next
+        setTimeout(() => {
+            submissionFormContainer.classList.remove('hidden');
+            submissionSuccess.classList.add('hidden');
+            submissionForm.reset();
+            if(fileNameDisplay) fileNameDisplay.textContent = '';
+            if(formError) formError.style.display = 'none';
+            showPopup(submissionPopup);
+        }, 500);
     };
+    
+    if(ctaFooterBtn) ctaFooterBtn.addEventListener('click', () => showPopup(offerPopup));
+    if(ctaPopupBtn) ctaPopupBtn.addEventListener('click', openSubmissionPopup);
+    if(closeOfferPopupBtn) closeOfferPopupBtn.addEventListener('click', () => hidePopup(offerPopup));
+    if(closeSubmissionPopupBtn) closeSubmissionPopupBtn.addEventListener('click', () => hidePopup(submissionPopup));
+
+    if(submissionForm) {
+        submissionForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Enviando...';
+            formError.style.display = 'none';
+            
+            const formData = new FormData();
+            formData.append('whatsapp', document.getElementById('whatsapp-input').value);
+            formData.append('link', document.getElementById('link-input').value);
+            
+            if (fileUpload.files.length > 0) {
+                formData.append('file-upload', fileUpload.files[0]);
+            }
+            
+            const renderUrl = 'https://meucatalogointeligente.onrender.com/submit';
+
+            try {
+                const response = await fetch(renderUrl, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error('Falha no envio. Por favor, tente novamente mais tarde.');
+                }
+
+                submissionFormContainer.classList.add('hidden');
+                submissionSuccess.classList.remove('hidden');
+
+                setTimeout(() => {
+                    hidePopup(submissionPopup);
+                    // Reset button state after popup is fully closed
+                    setTimeout(() => {
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Enviar e Começar Teste Grátis';
+                    }, 500);
+                }, 5000);
+
+            } catch (error) {
+                console.error('Erro no envio do formulário:', error);
+                formError.textContent = error.message;
+                formError.style.display = 'block';
+                submitButton.disabled = false;
+                submitButton.textContent = 'Enviar e Começar Teste Grátis';
+            }
+        });
+    }
+    
+    if(fileUpload) {
+        fileUpload.addEventListener('change', () => {
+            if (fileNameDisplay) {
+                fileNameDisplay.textContent = fileUpload.files.length > 0 ? fileUpload.files[0].name : '';
+            }
+        });
+    }
 
     // Popup de oferta inicial (após 10 segundos)
     setTimeout(() => {
-        if (!sessionStorage.getItem('offerShown')) {
+        // Check if any popup is already open
+        const isPopupOpen = !!document.querySelector('#offer-popup:not(.hidden), #submission-popup:not(.hidden)');
+        if (!sessionStorage.getItem('offerShown') && !isPopupOpen) {
             showPopup(offerPopup);
             sessionStorage.setItem('offerShown', 'true');
         }
     }, 10000);
 
     // Popup de intenção de saída
-    let interaction = false;
-    document.body.addEventListener('click', () => { interaction = true; }, { once: true });
-    
     document.addEventListener('mouseleave', (e) => {
-        if (e.clientY <= 0 && !sessionStorage.getItem('exitIntentShown') && !interaction) {
+        const isPopupOpen = !!document.querySelector('#offer-popup:not(.hidden), #submission-popup:not(.hidden)');
+        if (e.clientY <= 0 && !sessionStorage.getItem('exitIntentShown') && !isPopupOpen) {
             showPopup(offerPopup);
             sessionStorage.setItem('exitIntentShown', 'true');
-            sessionStorage.setItem('offerShown', 'true');
+            sessionStorage.setItem('offerShown', 'true'); // Also mark it as shown
         }
     });
-
-    // Event Listeners dos botões
-    closeOfferPopupBtn.addEventListener('click', () => hidePopup(offerPopup));
-    closeSubmissionPopupBtn.addEventListener('click', () => hidePopup(submissionPopup));
-    ctaPopupBtn.addEventListener('click', openSubmissionPopup);
-    ctaFooterBtn.addEventListener('click', openSubmissionPopup);
-
-    fileUpload.addEventListener('change', () => {
-        fileNameDisplay.textContent = fileUpload.files.length > 0 ? fileUpload.files[0].name : '';
-    });
-
-    // Simulação de envio para Telegram
-    submissionForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        submissionFormContainer.style.display = 'none';
-        submissionSuccess.style.display = 'block';
-
-        setTimeout(() => {
-            hidePopup(submissionPopup);
-        }, 5000);
-    });
-
+    
     // --- INICIALIZAÇÃO ---
     renderMenu();
+    updateCart(); // Para carregar o carrinho salvo
 });
 </script>
 
