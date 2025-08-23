@@ -382,7 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let message = "Olá! Gostaria de fazer o seguinte pedido:\n\n";
         cart.forEach(item => {
             // Alteração: Removido o 'x'
-            message += `✅ ${item.quantity} ${item.name}\n`;
+            message += `#  ${item.quantity} ${item.name}\n`;
         });
         // Alteração: Removida a linha do total
         return message;
